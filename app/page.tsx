@@ -6,6 +6,7 @@ import * as XLSX from 'xlsx';
 type TableData = (string | number)[][];
 
 type AlignMode = 'left' | 'center' | 'right' | 'none';
+type InputMode = 'upload' | 'paste';
 
 export default function Home() {
   const [tableData, setTableData] = useState<TableData>([]);
@@ -16,6 +17,8 @@ export default function Home() {
   const [workbook, setWorkbook] = useState<XLSX.WorkBook | null>(null);
   const [alignMode, setAlignMode] = useState<AlignMode>('left');
   const [boldHeader, setBoldHeader] = useState<boolean>(true);
+  const [inputMode, setInputMode] = useState<InputMode>('upload');
+  const [pasteText, setPasteText] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const generateMarkdown = useCallback((data: TableData): string => {
@@ -120,20 +123,56 @@ export default function Home() {
     setMarkdown(generateMarkdown(jsonData));
   }, [workbook, generateMarkdown]);
 
+  const parseTableText = useCallback((text: string): TableData => {
+    let rows: (string | number)[][];
+
+    if (text.includes('\t')) {
+      rows = text.split('\n').map(row => row.split('\t'));
+    } else if (text.includes('|')) {
+      const lines = text.split('\n').filter(line => line.trim());
+      rows = lines.map(line =>
+        line.split('|')
+          .map(cell => cell.trim())
+          .filter((_, i, arr) => i > 0 && i < arr.length - 1)
+      );
+      if (rows.length > 1 && rows[1].every(cell => /^-+$/.test(String(cell)) || /^:-+:$/.test(String(cell)) || /^:-+$/.test(String(cell)) || /^-+:$/.test(String(cell)))) {
+        rows.splice(1, 1);
+      }
+    } else {
+      rows = text.split('\n').map(row => [row]);
+    }
+
+    return rows.filter(row => row.some(cell => String(cell).trim() !== ''));
+  }, []);
+
   const handlePaste = useCallback(async () => {
     try {
       const text = await navigator.clipboard.readText();
-      const rows = text.split('\n').map(row => row.split('\t'));
-      const filteredRows = rows.filter(row => row.some(cell => cell.trim() !== ''));
-      setTableData(filteredRows);
-      setMarkdown(generateMarkdown(filteredRows));
+      const data = parseTableText(text);
+      setTableData(data);
+      setMarkdown(generateMarkdown(data));
       setFileName('');
       setSheetNames([]);
       setWorkbook(null);
     } catch (err) {
       console.error('Failed to read clipboard:', err);
     }
-  }, [generateMarkdown]);
+  }, [parseTableText, generateMarkdown]);
+
+  const handleTextInput = useCallback((text: string) => {
+    setPasteText(text);
+    if (text.trim()) {
+      const data = parseTableText(text);
+      setTableData(data);
+      setMarkdown(generateMarkdown(data));
+      setFileName('');
+      setSheetNames([]);
+      setWorkbook(null);
+    } else {
+      setTableData([]);
+      setMarkdown('');
+    }
+  }, [parseTableText, generateMarkdown]);
 
   const handleCopy = useCallback(() => {
     navigator.clipboard.writeText(markdown);
@@ -191,37 +230,82 @@ export default function Home() {
 
       <main className="max-w-7xl mx-auto px-6 py-8">
         <div className="mb-6">
-          <div className="flex flex-wrap gap-3 items-center">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".xlsx,.xls,.xlsm"
-              onChange={handleFileUpload}
-              className="hidden"
-              id="file-upload"
-            />
-            <label
-              htmlFor="file-upload"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 cursor-pointer transition-colors font-medium"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-              </svg>
-              上传 Excel
-            </label>
-
+          <div className="flex gap-1 mb-4 bg-gray-100 p-1 rounded-lg w-fit">
             <button
-              onClick={handlePaste}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+              onClick={() => setInputMode('upload')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                inputMode === 'upload'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-              粘贴表格
+              📁 上传文件
             </button>
+            <button
+              onClick={() => setInputMode('paste')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                inputMode === 'paste'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              📋 粘贴文本
+            </button>
+          </div>
 
+          {inputMode === 'upload' ? (
+            <div className="flex flex-wrap gap-3 items-center">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".xlsx,.xls,.xlsm"
+                onChange={handleFileUpload}
+                className="hidden"
+                id="file-upload"
+              />
+              <label
+                htmlFor="file-upload"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 cursor-pointer transition-colors font-medium"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                上传 Excel
+              </label>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div className="flex gap-3">
+                <button
+                  onClick={handlePaste}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                  从剪贴板粘贴
+                </button>
+                {pasteText && (
+                  <button
+                    onClick={() => handleTextInput('')}
+                    className="inline-flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium"
+                  >
+                    清空文本
+                  </button>
+                )}
+              </div>
+              <textarea
+                value={pasteText}
+                onChange={(e) => handleTextInput(e.target.value)}
+                placeholder="在此粘贴从 Excel、Word、网页复制的表格数据...&#10;支持 Tab 分隔、Markdown 表格格式"
+                className="w-full h-32 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none text-sm font-mono"
+              />
+            </div>
+          )}
+
+          <div className="flex flex-wrap gap-3 items-center mt-4">
             {sheetNames.length > 1 && (
-              <div className="flex items-center gap-2 ml-2">
+              <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-500">工作表：</span>
                 <select
                   value={activeSheet}
@@ -236,18 +320,15 @@ export default function Home() {
             )}
 
             {tableData.length > 0 && (
-              <>
-                <div className="h-6 w-px bg-gray-300 mx-2" />
-                <button
-                  onClick={handleClear}
-                  className="inline-flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                  清空
-                </button>
-              </>
+              <button
+                onClick={handleClear}
+                className="inline-flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                清空
+              </button>
             )}
           </div>
 
