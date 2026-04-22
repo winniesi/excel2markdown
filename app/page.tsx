@@ -6,7 +6,6 @@ import * as XLSX from 'xlsx';
 type TableData = (string | number)[][];
 
 type AlignMode = 'left' | 'center' | 'right' | 'none';
-type InputMode = 'upload' | 'paste';
 
 export default function Home() {
   const [tableData, setTableData] = useState<TableData>([]);
@@ -17,7 +16,6 @@ export default function Home() {
   const [workbook, setWorkbook] = useState<XLSX.WorkBook | null>(null);
   const [alignMode, setAlignMode] = useState<AlignMode>('left');
   const [boldHeader, setBoldHeader] = useState<boolean>(true);
-  const [inputMode, setInputMode] = useState<InputMode>('upload');
   const [pasteText, setPasteText] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -223,90 +221,74 @@ export default function Home() {
               </div>
               <h1 className="text-xl font-semibold text-gray-900">Excel to Markdown</h1>
             </div>
-            <p className="text-sm text-gray-500">所有转换在本地完成，数据不上传服务器</p>
+            <p className="text-sm text-gray-500">All conversions done locally, no data uploaded</p>
           </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-8">
         <div className="mb-6">
-          <div className="flex gap-1 mb-4 bg-gray-100 p-1 rounded-lg w-fit">
-            <button
-              onClick={() => setInputMode('upload')}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                inputMode === 'upload'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              📁 上传文件
-            </button>
-            <button
-              onClick={() => setInputMode('paste')}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                inputMode === 'paste'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              📋 粘贴文本
-            </button>
-          </div>
-
-          {inputMode === 'upload' ? (
-            <div className="flex flex-wrap gap-3 items-center">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".xlsx,.xls,.xlsm"
-                onChange={handleFileUpload}
-                className="hidden"
-                id="file-upload"
-              />
-              <label
-                htmlFor="file-upload"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 cursor-pointer transition-colors font-medium"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                </svg>
-                上传 Excel
-              </label>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <div className="flex gap-3">
-                <button
-                  onClick={handlePaste}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium"
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="p-4 border border-gray-200 rounded-xl bg-white">
+              <h3 className="text-sm font-medium text-gray-700 mb-3">Upload File</h3>
+              <div className="flex flex-wrap gap-3 items-center">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".xlsx,.xls,.xlsm"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                  id="file-upload"
+                />
+                <label
+                  htmlFor="file-upload"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 cursor-pointer transition-colors font-medium"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                   </svg>
-                  从剪贴板粘贴
-                </button>
-                {pasteText && (
-                  <button
-                    onClick={() => handleTextInput('')}
-                    className="inline-flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium"
-                  >
-                    清空文本
-                  </button>
-                )}
+                  Upload Excel
+                </label>
               </div>
-              <textarea
-                value={pasteText}
-                onChange={(e) => handleTextInput(e.target.value)}
-                placeholder="在此粘贴从 Excel、Word、网页复制的表格数据...&#10;支持 Tab 分隔、Markdown 表格格式"
-                className="w-full h-32 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none text-sm font-mono"
-              />
+              <p className="text-xs text-gray-500 mt-2">Supports .xlsx, .xls, .xlsm formats</p>
             </div>
-          )}
+
+            <div className="p-4 border border-gray-200 rounded-xl bg-white">
+              <h3 className="text-sm font-medium text-gray-700 mb-3">Paste Text</h3>
+              <div className="space-y-3">
+                <div className="flex gap-3">
+                  <button
+                    onClick={handlePaste}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    Paste from Clipboard
+                  </button>
+                  {pasteText && (
+                    <button
+                      onClick={() => handleTextInput('')}
+                      className="inline-flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+                <textarea
+                  value={pasteText}
+                  onChange={(e) => handleTextInput(e.target.value)}
+                  placeholder="Paste table data copied from Excel, Word, web pages...&#10;Supports Tab-separated, Markdown table formats"
+                  className="w-full h-24 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none text-sm font-mono"
+                />
+              </div>
+            </div>
+          </div>
 
           <div className="flex flex-wrap gap-3 items-center mt-4">
             {sheetNames.length > 1 && (
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-500">工作表：</span>
+                <span className="text-sm text-gray-500">Sheet:</span>
                 <select
                   value={activeSheet}
                   onChange={(e) => handleSheetChange(e.target.value)}
@@ -327,7 +309,7 @@ export default function Home() {
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
-                清空
+                Clear
               </button>
             )}
           </div>
@@ -339,17 +321,17 @@ export default function Home() {
               </svg>
               <span>{fileName}</span>
               <span className="text-gray-400">·</span>
-              <span>{tableData.length} 行</span>
+              <span>{tableData.length} rows</span>
             </div>
           )}
         </div>
 
         {tableData.length > 0 && (
           <div className="mb-6 p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
-            <h3 className="text-sm font-medium text-gray-700 mb-3">格式选项</h3>
+            <h3 className="text-sm font-medium text-gray-700 mb-3">Format Options</h3>
             <div className="flex flex-wrap gap-4">
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-500">对齐：</span>
+                <span className="text-sm text-gray-500">Alignment:</span>
                 {(['left', 'center', 'right', 'none'] as AlignMode[]).map((mode) => (
                   <button
                     key={mode}
@@ -360,7 +342,7 @@ export default function Home() {
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
-                    {mode === 'left' ? '左对齐' : mode === 'center' ? '居中' : mode === 'right' ? '右对齐' : '无'}
+                    {mode === 'left' ? 'Left' : mode === 'center' ? 'Center' : mode === 'right' ? 'Right' : 'None'}
                   </button>
                 ))}
               </div>
@@ -372,7 +354,7 @@ export default function Home() {
                     onChange={handleBoldHeaderChange}
                     className="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500"
                   />
-                  <span className="text-sm text-gray-600">表头加粗</span>
+                  <span className="text-sm text-gray-600">Bold Header</span>
                 </label>
               </div>
             </div>
@@ -381,7 +363,7 @@ export default function Home() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div>
-            <h2 className="text-sm font-medium text-gray-700 mb-3">表格预览</h2>
+            <h2 className="text-sm font-medium text-gray-700 mb-3">Table Preview</h2>
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
               {tableData.length === 0 ? (
                 <div className="p-12 text-center">
@@ -390,8 +372,8 @@ export default function Home() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                   </div>
-                  <p className="text-gray-500">上传 Excel 文件或粘贴表格数据</p>
-                  <p className="text-sm text-gray-400 mt-1">支持 .xlsx, .xls, .xlsm 格式</p>
+                  <p className="text-gray-500">Upload Excel file or paste table data</p>
+                  <p className="text-sm text-gray-400 mt-1">Whichever action was performed last will take effect</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto max-h-96 overflow-y-auto">
@@ -424,7 +406,7 @@ export default function Home() {
 
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-medium text-gray-700">Markdown 输出</h2>
+              <h2 className="text-sm font-medium text-gray-700">Markdown Output</h2>
               {markdown && (
                 <div className="flex gap-2">
                   <button
@@ -434,7 +416,7 @@ export default function Home() {
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                     </svg>
-                    复制
+                    Copy
                   </button>
                   <button
                     onClick={handleDownload}
@@ -443,7 +425,7 @@ export default function Home() {
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                     </svg>
-                    下载
+                    Download
                   </button>
                 </div>
               )}
@@ -460,7 +442,7 @@ export default function Home() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                     </svg>
                   </div>
-                  <p className="text-gray-500">Markdown 将在这里显示</p>
+                  <p className="text-gray-500">Markdown will appear here</p>
                 </div>
               )}
             </div>
@@ -470,7 +452,7 @@ export default function Home() {
 
       <footer className="mt-auto py-8 border-t border-gray-200 bg-white">
         <div className="max-w-7xl mx-auto px-6 text-center text-sm text-gray-500">
-          <p>Excel to Markdown Converter · 完全本地运行，保护您的数据隐私</p>
+          <p>Excel to Markdown Converter · Runs entirely locally, your data stays private</p>
         </div>
       </footer>
     </div>
