@@ -17,6 +17,7 @@ export default function Home() {
   const [alignMode, setAlignMode] = useState<AlignMode>('left');
   const [boldHeader, setBoldHeader] = useState<boolean>(true);
   const [pasteText, setPasteText] = useState<string>('');
+  const [copied, setCopied] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const generateMarkdown = useCallback((data: TableData): string => {
@@ -174,6 +175,8 @@ export default function Home() {
 
   const handleCopy = useCallback(() => {
     navigator.clipboard.writeText(markdown);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   }, [markdown]);
 
   const handleDownload = useCallback(() => {
@@ -411,12 +414,20 @@ export default function Home() {
                 <div className="flex gap-2">
                   <button
                     onClick={handleCopy}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg transition-all duration-200 ${
+                      copied
+                        ? 'bg-emerald-100 border border-emerald-400 text-emerald-700'
+                        : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                    }`}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      {copied ? (
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      ) : (
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      )}
                     </svg>
-                    Copy
+                    {copied ? 'Copied!' : 'Copy'}
                   </button>
                   <button
                     onClick={handleDownload}
