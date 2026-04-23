@@ -367,7 +367,7 @@ export default function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div>
             <h2 className="text-sm font-medium text-gray-700 mb-3">Table Preview</h2>
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden min-h-[300px]">
               {tableData.length === 0 ? (
                 <div className="p-12 text-center">
                   <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
@@ -441,7 +441,7 @@ export default function Home() {
                 </div>
               )}
             </div>
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden min-h-[300px]">
               {markdown ? (
                 <pre className="p-4 text-sm font-mono text-gray-700 bg-gray-50 overflow-x-auto max-h-96 overflow-y-auto leading-relaxed">
                   {markdown}
