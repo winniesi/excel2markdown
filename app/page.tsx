@@ -222,19 +222,19 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
-              <h1 className="text-xl font-semibold text-gray-900">Excel to Markdown 表格转换器</h1>
+              <h1 className="text-xl font-semibold text-gray-900">Excel to Markdown</h1>
             </div>
-            <p className="text-sm text-gray-500">完全本地运行，数据不上传服务器</p>
+            <p className="text-sm text-gray-500">All conversions done locally, no data uploaded</p>
           </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-8">
         <section aria-labelledby="intro-heading" className="mb-8 text-center">
-          <h2 id="intro-heading" className="text-2xl font-bold text-gray-900 mb-2">免费在线 Excel 转 Markdown 表格工具</h2>
+          <h2 id="intro-heading" className="text-2xl font-bold text-gray-900 mb-2">Free Excel to Markdown Table Converter</h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            快速将 Excel 文件（.xlsx, .xls, .xlsm）或剪贴板中的表格数据转换为标准 Markdown 格式。
-            支持左对齐、居中、右对齐多种对齐方式，可自定义粗体表头，所有转换均在本地完成，保护您的数据隐私。
+            Convert Excel files (.xlsx, .xls, .xlsm) or clipboard table data to standard Markdown format instantly.
+            Support for left, center, right alignment options, customizable bold headers, all conversions done locally to protect your data privacy.
           </p>
         </section>
 
@@ -471,19 +471,19 @@ export default function Home() {
 
       <section aria-labelledby="features-heading" className="mt-12 mb-8">
         <div className="max-w-7xl mx-auto px-6">
-          <h2 id="features-heading" className="text-xl font-bold text-gray-900 mb-6 text-center">工具特性</h2>
+          <h2 id="features-heading" className="text-xl font-bold text-gray-900 mb-6 text-center">Features</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <article className="p-4 bg-white rounded-xl border border-gray-200">
-              <h3 className="font-semibold text-gray-800 mb-2">🔒 隐私保护</h3>
-              <p className="text-sm text-gray-600">所有文件转换均在本地浏览器中完成，数据不会上传到任何服务器</p>
+              <h3 className="font-semibold text-gray-800 mb-2">🔒 Privacy First</h3>
+              <p className="text-sm text-gray-600">All file conversions happen locally in your browser, no data is ever uploaded to any server</p>
             </article>
             <article className="p-4 bg-white rounded-xl border border-gray-200">
-              <h3 className="font-semibold text-gray-800 mb-2">⚡ 多种输入方式</h3>
-              <p className="text-sm text-gray-600">支持上传 Excel 文件（.xlsx, .xls, .xlsm）或直接粘贴剪贴板内容</p>
+              <h3 className="font-semibold text-gray-800 mb-2">⚡ Multiple Input Methods</h3>
+              <p className="text-sm text-gray-600">Support uploading Excel files (.xlsx, .xls, .xlsm) or pasting directly from clipboard</p>
             </article>
             <article className="p-4 bg-white rounded-xl border border-gray-200">
-              <h3 className="font-semibold text-gray-800 mb-2">🎨 自定义格式</h3>
-              <p className="text-sm text-gray-600">支持左对齐、居中、右对齐、无对齐四种方式，可切换粗体表头样式</p>
+              <h3 className="font-semibold text-gray-800 mb-2">🎨 Custom Formatting</h3>
+              <p className="text-sm text-gray-600">Support left, center, right, or no alignment options with toggleable bold header styles</p>
             </article>
           </div>
         </div>
@@ -491,7 +491,7 @@ export default function Home() {
 
       <footer className="mt-auto py-8 border-t border-gray-200 bg-white">
         <div className="max-w-7xl mx-auto px-6 text-center text-sm text-gray-500">
-          <p>Excel to Markdown 表格转换器 · 完全本地运行，数据安全隐私保护</p>
+          <p>Excel to Markdown Converter · Runs entirely locally, your data stays private</p>
         </div>
       </footer>
     </div>
